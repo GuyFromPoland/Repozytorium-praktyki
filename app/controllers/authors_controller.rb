@@ -21,6 +21,7 @@ class AuthorsController < ApplicationController
   def edit
   end
 
+
   # POST /authors or /authors.json
   def create
     @author = Author.new(author_params)
@@ -58,13 +59,25 @@ class AuthorsController < ApplicationController
       format.json { head :no_content }
     end
   end
-
+  #defines link as url
+  def get_url
+    @url = Author.find(author_params[:link])
+  end
+  #convert channel url into channel id
+  def get_channel_id_from_url(url)
+    match = url.match(regex)
+    if match
+      return match[1]
+    else
+      return nil
+    end
+  end
   # GET /authors/fetch_latest
   def fetch_latest
+    #change the api key into one that is inside credentials
     api_key = "AIzaSyAwk871ns4ckPgwFVECg1b999PXA2xrwjc"
-    channel_id = "UCXnI7wpHJ-x8bafp1BK3DUQ"
-
     youtube = YoutubeService.new(api_key)
+    channel_id = get_channel_id_from_url(@url)
     response = youtube.latest_videos(channel_id, 5)
 
     @videos = if response
