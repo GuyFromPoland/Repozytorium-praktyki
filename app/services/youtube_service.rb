@@ -1,3 +1,5 @@
+require 'google/apis/youtube_v3'
+
 class YoutubeService
   def initialize(api_key)
     @api_key = api_key
@@ -5,10 +7,7 @@ class YoutubeService
     @client.key = @api_key
   end
 
-  def search_videos(query, max_results = 10)
-    @client.list_searches('snippet', q: query, max_results: max_results, type: 'video')
-  rescue Google::Apis::ClientError => e
-    Rails.logger.error("Błąd API YouTube: #{e.message}")
-    nil
+  def latest_videos(channel_id, max_results = 5)
+    @client.list_searches('snippet', channel_id: channel_id, max_results: max_results, order: 'date')
   end
 end

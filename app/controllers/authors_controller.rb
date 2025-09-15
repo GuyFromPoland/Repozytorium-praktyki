@@ -1,5 +1,7 @@
 class AuthorsController < ApplicationController
+  # set_author tylko dla akcji, które naprawdę potrzebują ID
   before_action :set_author, only: %i[ show edit update destroy ]
+  skip_before_action :set_author, only: [:fetch_latest] # <--- dodane
 
   # GET /authors or /authors.json
   def index
@@ -57,14 +59,37 @@ class AuthorsController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_author
-      @author = Author.find(params.expect(:id))
-    end
+  # GET /authors/fetch_latest
+  def fetch_latest
+    api_key = "AIzaSyAwk871ns4ckPgwFVECg1b999PXA2xrwjc"
+    channel_id = "UCXnI7wpHJ-x8bafp1BK3DUQ"
 
-    # Only allow a list of trusted parameters through.
-    def author_params
-      params.expect(author: [ :name, :link, :img ])
-    end
+    youtube = YoutubeService.new(api_key)
+    response = youtube.latest_videos(channel_id, 5)
+
+    @videos = if response
+                response.items.map do |item|
+                  {
+                    title: item.snippet.title,
+                    link: "https://www.youtube.com/watch?v=#{item.id.video_id}",
+                    img: item.snippet.thumbnails.medium.url
+                  }
+                end
+              else
+                []
+              end
+  end
+
+
+  private
+
+  # Use callbacks to share common setup or constraints between actions.
+  def set_author
+    @author = Author.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def author_params
+    params.require(:author).permit(:name, :link, :img)
+  end
 end
