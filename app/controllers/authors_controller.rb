@@ -1,14 +1,12 @@
 class AuthorsController < ApplicationController
-  # set_author tylko dla akcji, które naprawdę potrzebują ID
-  before_action :set_author, only: %i[ show edit update destroy ]
-  skip_before_action :set_author, only: [:fetch_latest] # <--- dodane
+  before_action :set_author, only: %i[ show edit update destroy fetch_latest ]
 
-  # GET /authors or /authors.json
+  # GET /authors
   def index
     @authors = Author.all
   end
 
-  # GET /authors/1 or /authors/1.json
+  # GET /authors/1
   def show
   end
 
@@ -21,8 +19,7 @@ class AuthorsController < ApplicationController
   def edit
   end
 
-
-  # POST /authors or /authors.json
+  # POST /authors
   def create
     @author = Author.new(author_params)
 
@@ -37,7 +34,7 @@ class AuthorsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /authors/1 or /authors/1.json
+  # PATCH/PUT /authors/1
   def update
     respond_to do |format|
       if @author.update(author_params)
@@ -50,7 +47,7 @@ class AuthorsController < ApplicationController
     end
   end
 
-  # DELETE /authors/1 or /authors/1.json
+  # DELETE /authors/1
   def destroy
     @author.destroy!
 
@@ -59,28 +56,23 @@ class AuthorsController < ApplicationController
       format.json { head :no_content }
     end
   end
-  #defines link as url
-  def get_url
-    @url = Author.find(author_params[:link])
-  end
-  #convert channel url into channel id
-  def get_channel_id_from_url(url)
-    match = url.match(regex)
-    if match
-      return match[1]
-    else
-      return nil
-    end
-  end
-  # GET /authors/fetch_latest
+
+  # GET /authors/1/fetch_latest
   def fetch_latest
-    #change the api key into one that is inside credentials
-    api_key = "AIzaSyAwk871ns4ckPgwFVECg1b999PXA2xrwjc"
-    youtube = YoutubeService.new(api_key)
-    channel_id = get_channel_id_from_url(@url)
+    youtube = YoutubeService.new("AIzaSyAwk871ns4ckPgwFVECg1b999PXA2xrwjc")
+    url = @author.link
+
+    channel_id = youtube.resolve_channel_id_from_url(url)
+
+    if channel_id.nil?
+      @videos = []
+      flash[:alert] = "Failed to find channel from: #{url}"
+      return
+    end
+
     response = youtube.latest_videos(channel_id, 5)
 
-    @videos = if response
+    @videos = if response&.items&.any?
                 response.items.map do |item|
                   {
                     title: item.snippet.title,
@@ -96,13 +88,23 @@ class AuthorsController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_author
     @author = Author.find(params[:id])
   end
 
-  # Only allow a list of trusted parameters through.
   def author_params
     params.require(:author).permit(:name, :link, :img)
   end
+
+  def get_channel_id_from_url(url)
+    regex = %r{
+      (?:youtube\.com\/channel\/([a-zA-Z0-9_-]+)) |   # https://youtube.com/channel/UC...
+      (?:youtube\.com\/@([a-zA-Z0-9_-]+))         |   # https://youtube.com/@username
+      (?:youtube\.com\/user\/([a-zA-Z0-9_-]+))        # https://youtube.com/user/username
+    }x
+
+    match = url.match(regex)
+    match ? match.captures.compact.first : nil
+  end
 end
+

@@ -1,24 +1,24 @@
-<h1>Ostatnie filmy</h1>
+<h1>Latest videos</h1>
 
 <% if @videos.any? %>
   <table>
     <thead>
     <tr>
-      <th>Tytuł</th>
+      <th>Title</th>
       <th>Link</th>
-      <th>Miniaturka</th>
+      <th>Thumbnail</th>
     </tr>
     </thead>
     <tbody>
     <% @videos.each do |video| %>
       <tr>
         <td><%= video[:title] %></td>
-        <td><%= link_to "Otwórz", video[:link], target: "_blank" %></td>
+        <td><%= link_to "Open", video[:link], target: "_blank" %></td>
         <td><img src="<%= video[:img] %>" width="120"></td>
       </tr>
     <% end %>
     </tbody>
   </table>
 <% else %>
-  <p>Nie udało się pobrać filmów.</p>
+  <p>Failed to load videos.</p>
 <% end %>

@@ -10,10 +10,10 @@
     <p>
       <%= link_to "Show this author", author %>
     </p>
+    <p>
+      <%= link_to "Show latest videos", fetch_latest_author_path(author), class: "btn btn-primary" %>
+    </p>
   <% end %>
 </div>
 <%= link_to "New author", new_author_path %>
-<br>
-<br>
-<%= link_to "Pokaż ostatnie filmy z YouTube", fetch_latest_authors_path, class: "btn btn-primary" %>
 

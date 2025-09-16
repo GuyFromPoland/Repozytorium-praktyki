@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   # Authors routes with fetch_latest
   resources :authors do
-    collection do
+    member do
       get :fetch_latest
     end
   end
