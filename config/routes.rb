@@ -11,7 +11,6 @@ Rails.application.routes.draw do
   resources :authors do
     member do
       get :fetch_latest
-      get :fetch_latest_spotify
     end
   end
 end
