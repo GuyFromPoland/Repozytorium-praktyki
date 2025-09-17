@@ -11,9 +11,13 @@
       <%= link_to "Show this author", author %>
     </p>
     <p>
-      <%= link_to "Show latest videos", fetch_latest_author_path(author), class: "btn btn-primary" %>
+      <%= link_to "Show latest Youtube videos", fetch_latest_author_path(author), class: "btn btn-primary" %>
+    </p>
+    <p>
+      <%= link_to "Fetch latest Spotify uploads", fetch_latest_spotify_author_path(author), class: "btn btn-success" %>
     </p>
   <% end %>
 </div>
+<hr>
 <%= link_to "New author", new_author_path %>
 

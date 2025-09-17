@@ -15,6 +15,7 @@
         <td><%= video[:title] %></td>
         <td><%= link_to "Open", video[:link], target: "_blank" %></td>
         <td><img src="<%= video[:img] %>" width="120"></td>
+        <td>Release date: <%= video[:release_date] %></td>
       </tr>
     <% end %>
     </tbody>
